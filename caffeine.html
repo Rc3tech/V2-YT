@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <script src="lock.js"></script>
 <script src="/api/config"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050506">
-<title>Caffeine · Dashboard</title>
+<title>Cafeína · Painel</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="sync.js" defer></script>
@@ -185,11 +185,11 @@ body::after {
 <body>
 <div class="page">
 
-  <h1 class="dash-title">Caffeine</h1>
+  <h1 class="dash-title">Cafeína</h1>
 
   <!-- ENERGY CURVE -->
   <div class="section">
-    <div class="section-title">Your Day</div>
+    <div class="section-title">Seu Dia</div>
     <div class="gm-card">
       <div class="energy-head">
         <div class="ring">
@@ -200,15 +200,15 @@ body::after {
           <div class="ring-num" id="ringNum">—</div>
         </div>
         <div class="energy-label">
-          <span class="energy-state" id="energyState">Energy</span>
-          <span class="energy-when" id="energyWhen">Right now</span>
-          <span class="energy-hint"><span class="dot"></span>Hover / drag the curve</span>
+          <span class="energy-state" id="energyState">Energia</span>
+          <span class="energy-when" id="energyWhen">Agora</span>
+          <span class="energy-hint"><span class="dot"></span>Passe o dedo / arraste a curva</span>
         </div>
-        <div class="energy-desc">Your predicted energy, hour by hour — built from your caffeine, your body clock, and how long you've been awake.</div>
+        <div class="energy-desc">Sua energia prevista, hora a hora — baseada em sua cafeína, seu relógio biológico e quanto tempo você está acordado.</div>
         <div class="seg-toggle" id="modeToggle">
-          <button data-m="line" class="on">LINE</button>
-          <button data-m="bars">BARS</button>
-          <button data-m="stack">STACK</button>
+          <button data-m="line" class="on">LINHA</button>
+          <button data-m="bars">BARRAS</button>
+          <button data-m="stack">PILHA</button>
         </div>
       </div>
 
@@ -220,21 +220,21 @@ body::after {
       </div>
 
       <div class="plan-band" id="planBand">
-        <div class="plan-item"><span class="k">Peak focus</span><span class="v green" id="peakVal">—</span></div>
-        <div class="plan-item"><span class="k">Predicted crash</span><span class="v amber" id="crashVal">—</span></div>
-        <div class="plan-item"><span class="k">Last coffee by</span><span class="v" id="cutoffVal" style="color:#7DD3FC">—</span></div>
+        <div class="plan-item"><span class="k">Pico de foco</span><span class="v green" id="peakVal">—</span></div>
+        <div class="plan-item"><span class="k">Queda prevista</span><span class="v amber" id="crashVal">—</span></div>
+        <div class="plan-item"><span class="k">Último café até</span><span class="v" id="cutoffVal" style="color:#7DD3FC">—</span></div>
       </div>
     </div>
   </div>
 
   <!-- SMART TIMING + TIPS -->
   <div class="section">
-    <div class="section-title">Smart Timing</div>
+    <div class="section-title">Horários Inteligentes</div>
     <div class="gm-card">
       <div class="tile-grid">
-        <div class="mini peak"><div class="k">Most productive</div><div class="v" id="mPeak">—</div><div class="s" id="mPeakSub"></div></div>
-        <div class="mini crash"><div class="k">You'll crash</div><div class="v" id="mCrash">—</div><div class="s" id="mCrashSub"></div></div>
-        <div class="mini cutoff"><div class="k">Coffee cutoff</div><div class="v" id="mCutoff">—</div><div class="s" id="mCutoffSub"></div></div>
+        <div class="mini peak"><div class="k">Mais produtivo</div><div class="v" id="mPeak">—</div><div class="s" id="mPeakSub"></div></div>
+        <div class="mini crash"><div class="k">Queda esperada</div><div class="v" id="mCrash">—</div><div class="s" id="mCrashSub"></div></div>
+        <div class="mini cutoff"><div class="k">Corte de café</div><div class="v" id="mCutoff">—</div><div class="s" id="mCutoffSub"></div></div>
       </div>
       <ul class="tips" id="tips"></ul>
     </div>
@@ -242,7 +242,7 @@ body::after {
 
   <!-- DAILY INTAKE BAR -->
   <div class="section">
-    <div class="section-title">Today</div>
+    <div class="section-title">Hoje</div>
     <div class="gm-card">
       <div class="daily-top">
         <span class="daily-num" id="dailyNum">0</span>
@@ -251,28 +251,28 @@ body::after {
         <span class="daily-active" id="dailyActive"></span>
       </div>
       <div class="bar-track"><div class="bar-fill" id="dailyFill" style="width:0%"></div></div>
-      <div class="daily-msg good" id="dailyMsg">You haven't logged anything today.</div>
+      <div class="daily-msg good" id="dailyMsg">Você não registrou nada hoje.</div>
       <div class="daily-note" id="dailyNote"></div>
     </div>
   </div>
 
   <!-- LOG A DRINK -->
   <div class="section">
-    <div class="section-title">Log a Drink</div>
+    <div class="section-title">Registrar Bebida</div>
     <div class="gm-card">
-      <input class="gm-input" id="search" type="text" placeholder="Search a drink… (coffee, monster, matcha…)" autocomplete="off">
+      <input class="gm-input" id="search" type="text" placeholder="Buscar bebida… (café, monster, matcha…)" autocomplete="off">
       <ul class="results" id="results"></ul>
       <div class="custom-row">
-        <input class="gm-input" id="customName" type="text" placeholder="Custom drink name" autocomplete="off">
+        <input class="gm-input" id="customName" type="text" placeholder="Nome personalizado" autocomplete="off">
         <input class="gm-input mg-input" id="customMg" type="number" min="0" placeholder="mg" autocomplete="off">
-        <button class="gm-add" id="customAdd" type="button">Add</button>
+        <button class="gm-add" id="customAdd" type="button">Adicionar</button>
       </div>
     </div>
   </div>
 
   <!-- TODAY'S LOG -->
   <div class="section">
-    <div class="section-title">Logged Today</div>
+    <div class="section-title">Registrado Hoje</div>
     <div class="gm-card">
       <ul class="log-list" id="logList"></ul>
     </div>
@@ -522,27 +522,27 @@ body::after {
     const a=analysis();
     // band
     $('peakVal').textContent = a.peakT!=null ? (fmtClock(a.pStart)+'–'+fmtClock(a.pEnd)) : '—';
-    $('crashVal').textContent = a.crashSignificant ? ('~'+fmtClock(a.crashT)) : 'none soon';
+    $('crashVal').textContent = a.crashSignificant ? ('~'+fmtClock(a.crashT)) : 'nenhuma';
     $('cutoffVal').textContent = fmtClock(a.cutoff);
     // tiles
     $('mPeak').textContent = a.peakT!=null ? fmtClock(a.peakT) : '—';
-    $('mPeakSub').textContent = a.peakT!=null ? ('Energy ~'+a.peakV+'/100 · window '+fmtClock(a.pStart)+'–'+fmtClock(a.pEnd)) : 'Log a drink to see your curve.';
-    if(a.crashSignificant){ $('mCrash').textContent = fmtClock(a.crashT); $('mCrashSub').textContent = 'Drops toward ~'+a.crashTo+'/100 — plan lighter work then.'; }
-    else { $('mCrash').textContent = 'No crash'; $('mCrashSub').textContent = 'No steep drop predicted in the next several hours.'; }
+    $('mPeakSub').textContent = a.peakT!=null ? ('Energia ~'+a.peakV+'/100 · janela '+fmtClock(a.pStart)+'–'+fmtClock(a.pEnd)) : 'Registre uma bebida para ver sua curva.';
+    if(a.crashSignificant){ $('mCrash').textContent = fmtClock(a.crashT); $('mCrashSub').textContent = 'Cai para ~'+a.crashTo+'/100 — planeje trabalho mais leve então.'; }
+    else { $('mCrash').textContent = 'Sem queda'; $('mCrashSub').textContent = 'Nenhuma queda abrupta prevista nas próximas horas.'; }
     $('mCutoff').textContent = fmtClock(a.cutoff);
-    $('mCutoffSub').textContent = 'Last coffee to keep <30 mg by your '+fmtClock(bedHour)+' bedtime.';
+    $('mCutoffSub').textContent = 'Último café para manter <30 mg até às '+fmtClock(bedHour)+'.';
 
     // tips
     const tips=[];
-    tips.push(['☀️','Front-load it. Caffeine works best 30–90 min after waking — aim your first cup near '+fmtClock(wakeHour+0.5)+'.']);
+    tips.push(['☀️','Concentre no começo do dia. A cafeína funciona melhor 30–90 min após acordar — tome o primeiro copo perto das '+fmtClock(wakeHour+0.5)+'.']);
     const bedTs=hToTs(bedHour < nowHour() ? bedHour+24 : bedHour);
     const atBed=Math.round(totalActiveAt(bedTs));
-    if(a.cutoff < a.now) tips.push(['🌙','It\'s past your coffee cutoff ('+fmtClock(a.cutoff)+'). More caffeine now will likely cost you sleep tonight.']);
-    else tips.push(['🌙','You can still have coffee until ~'+fmtClock(a.cutoff)+' without wrecking your '+fmtClock(bedHour)+' bedtime.']);
-    if(atBed>=50) tips.push(['⚠️','~'+atBed+' mg will still be active at bedtime — that\'s enough to delay deep sleep. Ease off.']);
-    if(a.crashSignificant) tips.push(['🚶','Beat the '+fmtClock(a.crashT)+' dip with 10 min of daylight + water instead of another coffee — you\'ll avoid stacking a late crash.']);
-    tips.push(['💧','Drink a glass of water per caffeinated drink — dehydration mimics and worsens the crash.']);
-    if(recovery!=null && recovery<34) tips.push(['🔋','WHOOP recovery is '+recovery+'% — low. Caffeine masks fatigue but won\'t repay sleep debt; keep today under '+dailyLimit()+' mg.']);
+    if(a.cutoff < a.now) tips.push(['🌙','Passou do seu corte de café ('+fmtClock(a.cutoff)+'). Mais cafeína agora provavelmente vai custar seu sono esta noite.']);
+    else tips.push(['🌙','Você ainda pode tomar café até ~'+fmtClock(a.cutoff)+' sem prejudicar seu horário de dormir às '+fmtClock(bedHour)+'.']);
+    if(atBed>=50) tips.push(['⚠️','~'+atBed+' mg ainda estarão ativos na hora de dormir — o suficiente para atrasar o sono profundo. Reduza.']);
+    if(a.crashSignificant) tips.push(['🚶','Combata a queda das '+fmtClock(a.crashT)+' com 10 min de luz solar + água em vez de mais um café — você evitará acumular uma queda tardia.']);
+    tips.push(['💧','Beba um copo de água por bebida com cafeína — desidratação imita e piora a queda.']);
+    if(recovery!=null && recovery<34) tips.push(['🔋','Recuperação WHOOP está em '+recovery+'% — baixa. Cafeína mascara o cansaço mas não paga a dívida de sono; fique abaixo de '+dailyLimit()+' mg hoje.']);
     const ul=$('tips'); ul.innerHTML='';
     tips.forEach(([ic,txt])=>{ const li=document.createElement('li'); li.className='tip'; li.innerHTML='<span class="ic">'+ic+'</span><span>'+txt+'</span>'; ul.appendChild(li); });
   }
@@ -551,32 +551,32 @@ body::after {
     const total=dailyTotal(), limit=dailyLimit(), target=moderateTarget();
     $('dailyNum').textContent=total; $('dailyLimit').textContent=limit;
     const activeNow=Math.round(totalActiveAt(Date.now()));
-    $('dailyActive').textContent = activeNow>0 ? (activeNow+' mg active now') : '';
+    $('dailyActive').textContent = activeNow>0 ? (activeNow+' mg ativos agora') : '';
     const pct=Math.min(100,(total/limit)*100); const fill=$('dailyFill'); fill.style.width=pct+'%';
     let color='linear-gradient(90deg,#6BE3A4,#A7F3D0)';
     if(total>=limit) color='linear-gradient(90deg,#FF6B6B,#F2807A)'; else if(total>=target) color='linear-gradient(90deg,#F2C063,#F2A65A)';
     fill.style.background=color;
     const msg=$('dailyMsg'); msg.className='daily-msg';
-    if(total===0){ msg.classList.add('good'); msg.textContent="You haven't logged anything today."; }
-    else if(total>=limit){ msg.classList.add('bad'); msg.textContent="⚠️ That's over your limit for today — ease off the caffeine."; }
-    else if(total>=target){ msg.classList.add('warn'); msg.textContent="Getting up there. "+(limit-total)+" mg until your ceiling."; }
-    else { msg.classList.add('good'); msg.textContent="You're in a good range — "+(target-total)+" mg under your target."; }
+    if(total===0){ msg.classList.add('good'); msg.textContent="Você não registrou nada hoje."; }
+    else if(total>=limit){ msg.classList.add('bad'); msg.textContent="⚠️ Ultrapassou seu limite de hoje — reduza a cafeína."; }
+    else if(total>=target){ msg.classList.add('warn'); msg.textContent="Subindo. "+(limit-total)+" mg até o limite."; }
+    else { msg.classList.add('good'); msg.textContent="Você está numa boa faixa — "+(target-total)+" mg abaixo da sua meta."; }
     const parts=[];
-    if(bodyKg) parts.push('Target ~'+target+' mg (3 mg/kg for '+Math.round(bodyKg)+' kg). Ceiling '+limit+' mg.');
-    else parts.push('Using the 400 mg/day ceiling — add your weight in Settings for a personalized target.');
-    if(recovery!=null) parts.push('WHOOP recovery '+recovery+'%'+(recovery<34?' — limit pulled back to '+limit+' mg.':'.'));
+    if(bodyKg) parts.push('Meta ~'+target+' mg (3 mg/kg para '+Math.round(bodyKg)+' kg). Teto '+limit+' mg.');
+    else parts.push('Usando o teto de 400 mg/dia — adicione seu peso nas Configurações para uma meta personalizada.');
+    if(recovery!=null) parts.push('Recuperação WHOOP '+recovery+'%'+(recovery<34?' — limite reduzido para '+limit+' mg.':'.'));
     $('dailyNote').innerHTML=parts.join('<br>');
   }
 
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function renderLog(){
     const list=$('logList'); const tl=todaysLogs().slice().sort((a,b)=>b.ts-a.ts); list.innerHTML='';
-    if(tl.length===0){ const li=document.createElement('li'); li.className='empty-state'; li.textContent='No drinks logged today — search one above to start tracking.'; list.appendChild(li); return; }
+    if(tl.length===0){ const li=document.createElement('li'); li.className='empty-state'; li.textContent='Nenhuma bebida registrada hoje — pesquise uma acima para começar.'; list.appendChild(li); return; }
     tl.forEach(l=>{
       const m=milestones(l); const li=document.createElement('li'); li.className='log-row';
       li.innerHTML='<span class="log-emoji">'+(l.e||'☕')+'</span><div class="log-main"><div class="log-name">'+escapeHtml(l.n)+'<b>'+l.mg+' mg</b></div>'
-        +'<div class="log-meta">Peaks '+fmtTime(m.peak)+'<span class="sep">•</span>Half gone '+fmtTime(m.half)+'<span class="sep">•</span>Cleared '+fmtTime(m.cleared)+'</div></div>'
-        +'<span class="log-time">'+fmtTime(l.ts)+'</span><button class="log-del" type="button" aria-label="Delete">×</button>';
+        +'<div class="log-meta">Pico '+fmtTime(m.peak)+'<span class="sep">•</span>Metade eliminada '+fmtTime(m.half)+'<span class="sep">•</span>Eliminado '+fmtTime(m.cleared)+'</div></div>'
+        +'<span class="log-time">'+fmtTime(l.ts)+'</span><button class="log-del" type="button" aria-label="Excluir">×</button>';
       li.querySelector('.log-del').addEventListener('click',()=>{ logs=logs.filter(x=>x.id!==l.id); saveJSON(LOGS_KEY,logs); renderAll(); });
       list.appendChild(li);
     });
@@ -591,7 +591,7 @@ body::after {
     const el=$('results'); const query=(q||'').trim().toLowerCase(); let items=allDrinks();
     if(query) items=items.filter(d=>d.n.toLowerCase().includes(query)||d.c.toLowerCase().includes(query));
     items=items.slice(0, query?40:12); el.innerHTML='';
-    if(items.length===0){ const li=document.createElement('li'); li.className='results-empty'; li.textContent='No match — add it as a custom drink below.'; el.appendChild(li); return; }
+    if(items.length===0){ const li=document.createElement('li'); li.className='results-empty'; li.textContent='Sem resultados — adicione como bebida personalizada abaixo.'; el.appendChild(li); return; }
     items.forEach(d=>{ const li=document.createElement('li'); li.className='result';
       li.innerHTML='<span class="result-emoji">'+(d.e||'☕')+'</span><span class="result-name">'+escapeHtml(d.n)+' <span class="result-cat">· '+d.c+'</span></span><span class="result-mg">'+d.mg+'<small> mg</small></span>';
       li.addEventListener('click',()=>{ logDrink(d); $('search').value=''; renderResults(''); }); el.appendChild(li); });
