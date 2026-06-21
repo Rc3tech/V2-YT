@@ -504,54 +504,12 @@ main {
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
 </style>
+<script src="nav.js" defer></script>
 </head>
 <body>
 
 <main>
 
-  <div class="section-title">Pilha Diária</div>
-
-  <div class="stack-card">
-    <div class="stack-ticker" id="stackTicker">
-      <span class="stack-ticker-dot"></span>
-      <span class="stack-ticker-label">PILHA</span>
-      <span class="stack-ticker-sep">·</span>
-      <span class="stack-ticker-msg" id="stackTickerMsg">Tudo em dia — continue assim</span>
-      <span class="stack-ticker-count" id="stackTickerCount">0/0</span>
-    </div>
-
-    <div class="stack-head">
-      <div class="sf-eyebrow">Pilha diária</div>
-      <div class="sf-title">Toque em cada um ao tomar</div>
-      <div class="stack-progress-text" id="stackProgressText">— / — tomados hoje · reinicia às 6h</div>
-    </div>
-
-    <div class="stack-progress-track">
-      <div id="stackProgressBar" class="stack-progress-fill"></div>
-    </div>
-
-    <div id="stackGroups"></div>
-
-    <div class="stack-add-wrap">
-      <div class="sf-eyebrow stack-add-label">Adicionar à pilha</div>
-      <div class="stack-add-row">
-        <div class="stack-name-wrap">
-          <input id="stackAddName" type="text" placeholder="Nome (ex.: B-complex)" class="stack-input" autocomplete="off" spellcheck="false" />
-          <div id="stackSearchResults" class="stack-search-results" hidden></div>
-        </div>
-        <input id="stackAddDose" type="text" placeholder="Dose (ex.: 1 cáp.)" class="stack-input" />
-        <select id="stackAddWindow" class="stack-input stack-select">
-          <option value="morning">Manhã</option>
-          <option value="lunch">Almoço</option>
-          <option value="evening">Noite</option>
-          <option value="anytime">Qualquer hora</option>
-        </select>
-        <button id="stackAddBtn" class="stack-add-btn">+ Adicionar</button>
-      </div>
-    </div>
-  </div>
-
-  <section id="water" class="water-embed">
     <div class="section-title">Rastreador de Água</div>
     <iframe src="po-water.html" class="water-iframe" loading="lazy" title="Rastreador de Água"></iframe>
   </section>

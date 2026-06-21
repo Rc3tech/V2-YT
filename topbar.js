@@ -210,22 +210,7 @@ body.topbar-modal-open {
 </header>
 `;
 
-  const bottombarHtml = `
-<nav class="bottombar" id="bottombar" role="navigation" aria-label="Abas principais">
-  <a href="index.html" class="bottombar-tab" data-page="main">
-    <span class="bottombar-tab-icon">🏠</span>
-    <span>Início</span>
-  </a>
-  <a href="health.html" class="bottombar-tab" data-page="health">
-    <span class="bottombar-tab-icon">💊</span>
-    <span>Saúde</span>
-  </a>
-  <a href="gym.html" class="bottombar-tab" data-page="fitness">
-    <span class="bottombar-tab-icon">💪</span>
-    <span>Fitness</span>
-  </a>
-</nav>
-`;
+  const bottombarHtml = '';
 
   // Pages where we suppress the app chrome: finance has its own internal
   // 4-tab bottom nav and self-contained back button.
