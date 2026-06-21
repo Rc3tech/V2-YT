@@ -595,6 +595,101 @@ body::after {
   .gm-card { padding: 16px; }
   .gm-progress-num { font-size: 36px; }
 }
+
+/* ===== Log Rápido ===== */
+.ql-card {
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 1px 0 0 rgba(255,255,255,0.06) inset;
+}
+.ql-input-wrap {
+  display: flex; gap: 8px;
+}
+.ql-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 10px 14px;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ql-input::placeholder { color: var(--text-tertiary); }
+.ql-input:focus {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.07);
+}
+.ql-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 16px;
+  width: 42px; height: 42px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.ql-btn:active { background: rgba(255,255,255,0.14); }
+.ql-feed {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 10px;
+}
+.ql-entry {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  animation: ql-in 0.25s ease;
+}
+@keyframes ql-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ql-entry-icon { font-size: 16px; flex-shrink: 0; }
+.ql-entry-body { flex: 1; min-width: 0; }
+.ql-entry-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+.ql-entry-text {
+  font-size: 12px; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.ql-entry-link {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  white-space: nowrap;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.ql-entry-link:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
+.ql-entry.ql-water   { border-color: rgba(107,227,164,0.18); }
+.ql-entry.ql-caffeine{ border-color: rgba(242,192,99,0.18); }
+.ql-entry.ql-finance { border-color: rgba(224,118,88,0.18); }
+.ql-entry.ql-gym     { border-color: rgba(180,180,255,0.18); }
+.ql-entry.ql-health  { border-color: rgba(255,150,150,0.18); }
 </style>
 </head>
 <body>
@@ -690,6 +785,20 @@ body::after {
         <button type="button" id="tomorrowPolishBtn" class="gm-polish">✨ Refinar</button>
         <div class="gm-status" id="tomorrowStatus"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== LOG RÁPIDO ===== -->
+  <div class="section" style="margin-top:18px">
+    <div class="section-title">Log Rápido</div>
+    <div class="ql-card">
+      <div class="ql-input-wrap">
+        <input id="qlInput" class="ql-input" type="text"
+          placeholder="O que aconteceu? Ex.: tomei 300ml de água, comprei gasolina R$80…"
+          autocomplete="off" autocorrect="off" spellcheck="false">
+        <button type="button" id="qlBtn" class="ql-btn">↵</button>
+      </div>
+      <div id="qlFeed" class="ql-feed"></div>
     </div>
   </div>
 
@@ -1309,6 +1418,179 @@ body::after {
   window.addEventListener('storage', () => {
     loadToday(); loadTomorrow(); renderStreak();
   });
+
+  // ===== LOG RÁPIDO =====
+  (function () {
+    const QL_KEY = 'quick_log_v1';
+
+    function qlLoad() {
+      try { return JSON.parse(localStorage.getItem(QL_KEY)) || []; } catch(e) { return []; }
+    }
+    function qlSave(entries) {
+      try { localStorage.setItem(QL_KEY, JSON.stringify(entries)); } catch(e) {}
+    }
+
+    // Route rules — first match wins
+    const ROUTES = [
+      {
+        id: 'water', icon: '💧', label: 'Água', page: 'po-water.html',
+        patterns: [/\bágua\b|\bwater\b|\bml\b|\bml de\b|\bgarrafa\b|\bcopo d'?água\b/i],
+        extract: function(text) {
+          const m = text.match(/(\d+[\.,]?\d*)\s*ml/i);
+          const ml = m ? parseFloat(m[1].replace(',','.')) : null;
+          return ml ? ml + ' ml' : 'registrado';
+        },
+        store: function(text) {
+          const m = text.match(/(\d+[\.,]?\d*)\s*ml/i);
+          if (!m) return;
+          const ml = parseFloat(m[1].replace(',','.'));
+          try {
+            const raw = localStorage.getItem('po_water_v1');
+            const state = raw ? JSON.parse(raw) : {};
+            if (!state.logs) state.logs = {};
+            const today = (function(){
+              const d = new Date();
+              return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+            })();
+            // unit: ml (default) adds ml directly, else convert
+            const unitMl = state.unit === 'bottle' ? (state.bottleMl || 500)
+                         : state.unit === 'glass'  ? (state.glassMl  || 250)
+                         : state.unit === 'oz'     ? 29.57
+                         : 1;
+            state.logs[today] = (state.logs[today] || 0) + ml / unitMl;
+            localStorage.setItem('po_water_v1', JSON.stringify(state));
+          } catch(e) {}
+        }
+      },
+      {
+        id: 'caffeine', icon: '☕', label: 'Cafeína', page: 'caffeine.html',
+        patterns: [/\bcafé\b|\bcafeína\b|\bcoffee\b|\bespresso\b|\bnescafé\b|\bcapuccino\b|\blatte\b|\bchá preto\b|\bchá verde\b|\benergy\b|\bred bull\b|\bmonster\b|\bcerveja\b|\bálcool\b|\bbeer\b/i],
+        extract: function(text) {
+          const m = text.match(/(\d+)\s*mg/i);
+          if (m) return m[1] + ' mg';
+          if (/espresso/i.test(text)) return '63 mg';
+          if (/latte|cappuccino|capuccino|nescafé/i.test(text)) return '63 mg';
+          return '80 mg';
+        },
+        store: function(text) {
+          const mgMatch = text.match(/(\d+)\s*mg/i);
+          let mg = mgMatch ? parseInt(mgMatch[1]) : 80;
+          if (/espresso|latte|cappuccino|capuccino|nescafé/i.test(text)) mg = 63;
+          const entry = { id: 'ql' + Date.now(), n: 'Log Rápido', mg: mg, e: '☕', ts: Date.now() };
+          try {
+            const raw = localStorage.getItem('caf:logs');
+            const logs = raw ? JSON.parse(raw) : [];
+            logs.push(entry);
+            localStorage.setItem('caf:logs', JSON.stringify(logs));
+          } catch(e) {}
+        }
+      },
+      {
+        id: 'gym', icon: '🏋️', label: 'Treino', page: 'gym.html',
+        patterns: [/\btreino\b|\btreinar\b|\bacademia\b|\bginásio\b|\bexercício\b|\bcorrida\b|\bcorri\b|\bcaminhada\b|\bcaminhei\b|\bpeito\b|\bcostas\b|\bperna\b|\bglúteo\b|\babdominal\b|\bsupino\b|\bagachamento\b|\bpuxada\b|\brosca\b|\bfui malhar\b|\bmalhar\b/i],
+        extract: function(text) { return text.length > 40 ? text.slice(0,40) + '…' : text; },
+        store: function(text) {
+          try {
+            const raw = localStorage.getItem('gym_quick_log') || '[]';
+            const logs = JSON.parse(raw);
+            logs.unshift({ text: text, ts: Date.now() });
+            localStorage.setItem('gym_quick_log', JSON.stringify(logs.slice(0, 50)));
+          } catch(e) {}
+        }
+      },
+      {
+        id: 'finance', icon: '💸', label: 'Finanças', page: 'finance.html',
+        patterns: [/\bcomprei\b|\bpaguei\b|\bgastei\b|\bcombustível\b|\bgasolina\b|\baluguel\b|\bconta\b|\bboleto\b|\bfatura\b|\bmercado\b|\bsupermercado\b|\br\$|\breais\b|\bdinheiro\b|\bpix\b|\bcrédito\b|\bdébito\b|\brestaurante\b|\blanche\b|\bjantar\b|\balmoço\b/i],
+        extract: function(text) {
+          const m = text.match(/r\$\s*(\d+[\.,]?\d*)|(\d+[\.,]?\d*)\s*reais?/i);
+          if (m) return 'R$ ' + (m[1] || m[2]).replace(',','.');
+          return text.length > 40 ? text.slice(0,40) + '…' : text;
+        },
+        store: function(text) {
+          try {
+            const raw = localStorage.getItem('finance_quick_log') || '[]';
+            const logs = JSON.parse(raw);
+            logs.unshift({ text: text, ts: Date.now() });
+            localStorage.setItem('finance_quick_log', JSON.stringify(logs.slice(0, 100)));
+          } catch(e) {}
+        }
+      },
+      {
+        id: 'health', icon: '❤️', label: 'Saúde', page: 'health.html',
+        patterns: [/\bdormi\b|\bsono\b|\bsaúde\b|\bdor\b|\bmedicamento\b|\bremédio\b|\bconsulta\b|\bpeso\b|\bkg\b|\bpressão\b|\bglicose\b/i],
+        extract: function(text) { return text.length > 40 ? text.slice(0,40) + '…' : text; },
+        store: function(text) {
+          try {
+            const raw = localStorage.getItem('health_quick_log') || '[]';
+            const logs = JSON.parse(raw);
+            logs.unshift({ text: text, ts: Date.now() });
+            localStorage.setItem('health_quick_log', JSON.stringify(logs.slice(0, 50)));
+          } catch(e) {}
+        }
+      }
+    ];
+
+    function classify(text) {
+      for (const r of ROUTES) {
+        for (const p of r.patterns) {
+          if (p.test(text)) return r;
+        }
+      }
+      return null;
+    }
+
+    const feedEl = document.getElementById('qlFeed');
+
+    function renderFeed() {
+      const entries = qlLoad();
+      feedEl.innerHTML = '';
+      entries.slice(0, 8).forEach(function(e) {
+        const route = ROUTES.find(function(r) { return r.id === e.routeId; });
+        const div = document.createElement('div');
+        div.className = 'ql-entry' + (route ? ' ql-' + route.id : '');
+        div.innerHTML =
+          '<span class="ql-entry-icon">' + (e.icon || '•') + '</span>' +
+          '<div class="ql-entry-body">' +
+            '<div class="ql-entry-label">' + (e.label || 'Geral') + ' · ' + e.detail + '</div>' +
+            '<div class="ql-entry-text">' + e.text + '</div>' +
+          '</div>' +
+          (e.page ? '<a class="ql-entry-link" href="' + e.page + '">Ver →</a>' : '');
+        feedEl.prepend(div);
+      });
+    }
+
+    function submit() {
+      const input = document.getElementById('qlInput');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      const route = classify(text);
+      const entry = {
+        text: text,
+        routeId: route ? route.id : 'general',
+        icon: route ? route.icon : '📝',
+        label: route ? route.label : 'Geral',
+        detail: route ? route.extract(text) : '',
+        page: route ? route.page : null,
+        ts: Date.now()
+      };
+
+      if (route) route.store(text);
+
+      const entries = qlLoad();
+      entries.unshift(entry);
+      qlSave(entries.slice(0, 50));
+      renderFeed();
+    }
+
+    document.getElementById('qlBtn').addEventListener('click', submit);
+    document.getElementById('qlInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); submit(); }
+    });
+
+    renderFeed();
+  })();
 })();
 </script>
 

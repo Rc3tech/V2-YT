@@ -1601,12 +1601,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <div id="netWorthBreakdown" style="font-size:11px;color:var(--text-tertiary);margin-top:4px"></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
-        <span style="font-size:11px;color:var(--text-tertiary)">CHF</span>
         <select id="netWorthCurrency" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;cursor:pointer">
           <option value="CHF">CHF</option>
           <option value="USD">USD</option>
           <option value="EUR">EUR</option>
           <option value="GBP">GBP</option>
+          <option value="BRL">BRL (R$)</option>
         </select>
       </div>
     </div>
@@ -1755,6 +1755,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <option value="USD">USD</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
+        <option value="BRL">BRL</option>
       </select>
       <select id="subPeriod" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:12px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);max-width:100px">
         <option value="monthly">Mensal</option>
@@ -1792,6 +1793,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <option value="USD">USD</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
+        <option value="BRL">BRL</option>
       </select>
       <select id="ordFromCat" class="ord-input ord-input-from" title="Which net worth account this comes out of">
         <option value="">Sem contas ainda</option>
@@ -1849,6 +1851,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <option value="USD">USD</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
+        <option value="BRL">BRL</option>
       </select>
       <button class="wish-add-btn" id="wishAddBtn" onclick="window.__addWish && window.__addWish()">+ Adicionar</button>
     </div>
@@ -1952,7 +1955,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   const netWorthTotal = document.getElementById('netWorthTotal');
   const netWorthBreakdown = document.getElementById('netWorthBreakdown');
 
-  let exchangeRates = { CHF: 1, USD: 1, EUR: 1, GBP: 1 };
+  let exchangeRates = { CHF: 1, USD: 1, EUR: 1, GBP: 1, BRL: 1 };
   async function loadExchangeRates() {
     try {
       const res = await fetch('https://open.er-api.com/v6/latest/CHF');
@@ -1962,6 +1965,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
           CHF: 1,
           USD: data.rates.USD || 1,
           EUR: data.rates.EUR || 1,
+          BRL: data.rates.BRL || 1,
           GBP: data.rates.GBP || 1
         };
         renderAllNetWorth();
@@ -1975,6 +1979,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const symbol = currencyEl ? currencyEl.value : 'CHF';
     const rate = exchangeRates[symbol] || 1;
     const num = (Number(amountCHF) || 0) * rate;
+    if (symbol === 'BRL') {
+      return 'R$ ' + num.toLocaleString('pt-BR', { minimumFractionDigits: num % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+    }
     return symbol + ' ' + num.toLocaleString('en-US', { minimumFractionDigits: num % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
   }
 
