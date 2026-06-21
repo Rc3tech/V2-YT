@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script src="lock.js"></script>
+  <script src="/api/config"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050506">
+  <title>Entrada Rápida · MINHA VIDA</title>
+  <script src="topbar.js" defer></script>
+  <style>
+    :root {
+      --bg: #050506;
+      --card: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.06);
+      --text-1: #FAFAFA;
+      --text-2: #B8B6B0;
+      --text-3: #76746E;
+      --accent: #6BE3A4;
+      --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text-2);
+      font-family: var(--font); -webkit-font-smoothing: antialiased;
+      min-height: 100vh; overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background:
+        radial-gradient(circle at 75% 10%, rgba(107,227,164,0.10), transparent 45%),
+        radial-gradient(circle at 18% 90%, rgba(180,180,200,0.06), transparent 50%);
+      filter: blur(40px); pointer-events: none; z-index: 0;
+      animation: drift 36s ease-in-out infinite alternate;
+    }
+    @keyframes drift { 0%{transform:translate3d(0,0,0)} 100%{transform:translate3d(-18px,12px,0)} }
+
+    .shell {
+      position: relative; z-index: 1;
+      max-width: 680px; margin: 0 auto;
+      display: flex; flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+
+    /* ── Header ── */
+    .hdr {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px 12px;
+      background: rgba(5,5,6,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .back {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text-2);
+      text-decoration: none; font-size: 18px; line-height: 1;
+      transition: background 0.15s;
+    }
+    .back:hover { background: rgba(255,255,255,0.08); color: var(--text-1); }
+    .hdr-info { flex: 1; }
+    .hdr-info h1 { margin: 0; font-size: 17px; font-weight: 700; color: var(--text-1); letter-spacing: -0.01em; }
+    .hdr-info p  { margin: 0; font-size: 10px; color: var(--text-3); font-family: var(--mono); letter-spacing: 0.10em; text-transform: uppercase; }
+
+    /* ── Feed ── */
+    .feed {
+      flex: 1;
+      padding: 20px 20px 0;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    /* ── Welcome ── */
+    .welcome {
+      background: var(--card);
+      border: 1px solid rgba(107,227,164,0.14);
+      border-radius: 16px; padding: 18px;
+    }
+    .welcome h2 { margin: 0 0 5px; font-size: 15px; font-weight: 700; color: var(--text-1); }
+    .welcome p  { margin: 0 0 14px; font-size: 13px; line-height: 1.55; color: var(--text-3); }
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill {
+      background: rgba(107,227,164,0.07);
+      border: 1px solid rgba(107,227,164,0.18);
+      color: var(--accent); border-radius: 999px;
+      padding: 5px 12px; font-size: 12px;
+      cursor: pointer; transition: background 0.15s;
+      user-select: none;
+    }
+    .pill:hover { background: rgba(107,227,164,0.15); }
+
+    /* ── No key warning ── */
+    .no-key {
+      background: rgba(255,107,107,0.06);
+      border: 1px solid rgba(255,107,107,0.20);
+      border-radius: 12px; padding: 12px 16px;
+      font-size: 13px; color: #FF8A8A; display: none;
+    }
+    .no-key.show { display: block; }
+    .no-key a { color: inherit; text-decoration: underline; cursor: pointer; }
+
+    /* ── Messages ── */
+    .msg { display: flex; flex-direction: column; }
+    .msg.user { align-items: flex-end; }
+    .msg.ai   { align-items: flex-start; }
+
+    .bubble-user {
+      max-width: 82%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      border-radius: 16px 16px 4px 16px;
+      padding: 11px 15px;
+      font-size: 14px; color: var(--text-1); line-height: 1.5;
+    }
+    .bubble-user img {
+      max-width: 100%; border-radius: 8px;
+      display: block; margin-bottom: 8px;
+    }
+    .bubble-ai {
+      width: 100%;
+      background: rgba(107,227,164,0.04);
+      border: 1px solid rgba(107,227,164,0.14);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px 16px 16px 16px;
+      padding: 13px 16px;
+    }
+    .ai-lbl {
+      font-size: 9px; font-weight: 800; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+    }
+    .ai-txt { font-size: 14px; color: var(--text-1); line-height: 1.55; }
+
+    /* ── Action tags ── */
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; font-family: var(--mono);
+    }
+    .t-caf  { background: rgba(201,163,107,0.14); color: #C9A36B; border: 1px solid rgba(201,163,107,0.24); }
+    .t-ex   { background: rgba(125,211,252,0.12); color: #7DD3FC; border: 1px solid rgba(125,211,252,0.22); }
+    .t-wat  { background: rgba(96,165,250,0.12);  color: #60A5FA; border: 1px solid rgba(96,165,250,0.22); }
+    .t-goal { background: rgba(107,227,164,0.12); color: var(--accent); border: 1px solid rgba(107,227,164,0.22); }
+    .t-fin  { background: rgba(242,192,99,0.12);  color: #F2C063; border: 1px solid rgba(242,192,99,0.22); }
+    .t-wt   { background: rgba(167,139,250,0.12); color: #A78BFA; border: 1px solid rgba(167,139,250,0.22); }
+    .t-sup  { background: rgba(107,227,164,0.10); color: #6BE3A4; border: 1px solid rgba(107,227,164,0.20); }
+    .t-err  { background: rgba(255,107,107,0.10); color: #FF8A8A; border: 1px solid rgba(255,107,107,0.20); }
+
+    /* ── Typing ── */
+    .typing { display: inline-flex; gap: 5px; padding: 2px 0; }
+    .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: .4; animation: tp 1.2s ease-in-out infinite; display: block; }
+    .typing i:nth-child(2){animation-delay:.2s} .typing i:nth-child(3){animation-delay:.4s}
+    @keyframes tp{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+
+    /* ── Input area ── */
+    .input-area {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(5,5,6,0.94);
+      backdrop-filter: blur(24px);
+      border-top: 1px solid var(--border);
+      z-index: 20;
+    }
+    .preview-wrap {
+      max-width: 680px; margin: 0 auto 8px;
+      display: none; align-items: center; gap: 8px;
+    }
+    .preview-wrap.show { display: flex; }
+    .preview-wrap img { height: 44px; border-radius: 7px; object-fit: cover; }
+    .preview-name { font-size: 12px; color: var(--text-3); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preview-x {
+      background: transparent; border: none;
+      color: var(--text-3); cursor: pointer; font-size: 18px; line-height: 1; padding: 4px;
+    }
+    .input-row {
+      max-width: 680px; margin: 0 auto;
+      display: flex; gap: 8px; align-items: flex-end;
+    }
+    .attach {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text-2);
+      font-size: 19px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .attach:hover { background: rgba(255,255,255,0.08); color: var(--text-1); }
+    .ibox {
+      flex: 1; min-height: 44px; max-height: 120px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border); border-radius: 13px;
+      padding: 11px 14px; color: var(--text-1);
+      font-family: var(--font); font-size: 14px;
+      outline: none; resize: none; line-height: 1.45;
+      overflow-y: auto;
+      transition: border-color 0.2s;
+    }
+    .ibox:focus { border-color: rgba(107,227,164,0.35); }
+    .ibox::placeholder { color: var(--text-3); }
+    .send {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: var(--accent); border: none; border-radius: 12px;
+      color: #050506; font-size: 20px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+    .send:hover { transform: scale(1.05); }
+    .send:active { transform: scale(0.95); }
+    .send:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    @media (max-width: 480px) {
+      .feed { padding: 14px 14px 0; }
+      .hdr  { padding: 12px 14px 10px; }
+      .input-area { padding: 8px 14px calc(8px + env(safe-area-inset-bottom)); }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="hdr">
+    <a href="index.html" class="back">←</a>
+    <div class="hdr-info">
+      <h1>⚡ Entrada Rápida</h1>
+      <p>Registre qualquer coisa aqui</p>
+    </div>
+  </div>
+
+  <div class="feed" id="feed">
+    <div class="welcome">
+      <h2>Jogue qualquer coisa aqui</h2>
+      <p>Texto, foto do Apple Watch, extrato bancário, nota fiscal — eu leio e mando pra seção certa automaticamente.</p>
+      <div class="pills">
+        <span class="pill" data-t="Tomei um café agora">☕ Tomei um café</span>
+        <span class="pill" data-t="Fiz supino 60kg 8 repetições">💪 Supino 60kg 8 reps</span>
+        <span class="pill" data-t="Bebi uma garrafa de água">💧 Garrafa de água</span>
+        <span class="pill" data-t="Gastei R$50 no mercado hoje">💸 Gastei R$50</span>
+        <span class="pill" data-t="Dormi 8 horas essa noite">😴 Dormi 8 horas</span>
+        <span class="pill" data-t="Meta de hoje: estudar 2 horas">🎯 Adicionar meta</span>
+        <span class="pill" data-t="Pesei 78kg hoje de manhã">⚖️ Registrar peso</span>
+        <span class="pill" data-t="Tomei creatina hoje">💊 Tomei suplemento</span>
+      </div>
+    </div>
+    <div class="no-key" id="noKey">
+      Nenhuma chave de API encontrada.
+      <a onclick="window.location.href='nova-lite.html'">Configure na Nova →</a>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="preview-wrap" id="prevWrap">
+      <img id="prevImg" src="" alt="">
+      <span class="preview-name" id="prevName"></span>
+      <button class="preview-x" id="prevX">×</button>
+    </div>
+    <div class="input-row">
+      <button class="attach" id="attachBtn">📎</button>
+      <input type="file" id="fileIn" accept="image/*,.pdf" style="display:none">
+      <textarea class="ibox" id="ibox" placeholder="Jogue aqui o que fez hoje…" rows="1"></textarea>
+      <button class="send" id="sendBtn" disabled>→</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const feed    = $('feed');
+  const ibox    = $('ibox');
+  const sendBtn = $('sendBtn');
+  const fileIn  = $('fileIn');
+  const noKey   = $('noKey');
+
+  const KEY_LS = 'nova_lite_api_key';
+  let pending = null;   // {base64, mediaType, name, isPdf}
+  let busy    = false;
+
+  function getKey() { try { return localStorage.getItem(KEY_LS) || ''; } catch(e) { return ''; } }
+  if (!getKey()) noKey.classList.add('show');
+
+  /* ── Storage helpers ─────────────────────────────────────────── */
+  const sg = k => { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } };
+  const ss = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} };
+
+  function todayKey() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  /* ── Execute actions ─────────────────────────────────────────── */
+  function exec(a) {
+    const today = todayKey();
+
+    /* CAFEÍNA */
+    if (a.type === 'caffeine') {
+      const logs = sg('caf:logs') || [];
+      logs.push({ id: 'c' + Date.now() + Math.floor(Math.random()*999), n: a.name||'Café', mg: a.mg||95, e: a.emoji||'☕', ts: Date.now() });
+      ss('caf:logs', logs);
+      return { label: (a.emoji||'☕') + ' ' + (a.name||'Café') + ' ' + (a.mg||95) + 'mg → Cafeína', cls: 't-caf' };
+    }
+
+    /* ÁGUA */
+    if (a.type === 'water') {
+      let s = sg('po_water_v1') || { unit:'bottle', bottleMl:500, glassMl:250, weightUnit:'kg', profile:{weightKg:75,age:25,sex:'m',activityHrsPerWeek:5}, caffeineMgPerDay:200, substances:[], logs:{} };
+      s.logs = s.logs || {};
+      s.logs[today] = (s.logs[today] || 0) + (a.units || 1);
+      ss('po_water_v1', s);
+      window.dispatchEvent(new Event('storage'));
+      return { label: '💧 ×' + (a.units||1) + ' → Água', cls: 't-wat' };
+    }
+
+    /* META */
+    if (a.type === 'goal') {
+      const key = 'goals:' + today;
+      const gs = sg(key) || [];
+      gs.push({ text: a.text, done: false });
+      ss(key, gs);
+      window.dispatchEvent(new CustomEvent('goals-changed'));
+      return { label: '🎯 "' + a.text + '" → Metas', cls: 't-goal' };
+    }
+
+    /* EXERCÍCIO */
+    if (a.type === 'exercise') {
+      let s = sg('po_coach_v1');
+      if (!s) {
+        s = { units:'kg', gyms:[{id:'comm',name:'Academia Comercial'}], days:[{id:'push',name:'Empurrar'},{id:'pull',name:'Puxar'},{id:'legs',name:'Pernas'}], exercises:[], logs:{}, splitRotation:['Empurrar','Puxar','Pernas','Descanso'], splitAnchor:{date:todayKey(),index:0} };
+      }
+      s.exercises = s.exercises || [];
+      s.logs      = s.logs || {};
+      const nm = (a.name||'').toLowerCase();
+      let ex = s.exercises.find(e => e.name.toLowerCase().includes(nm) || nm.includes(e.name.toLowerCase()));
+      if (!ex) {
+        ex = { id:'ex_'+Date.now(), name: a.name||'Exercício', gym: s.gyms[0]?.id||'comm', day: s.days[0]?.id||'push', repMin:6, repMax:12, step:2.5, startWeight: a.weight||0, bw: a.bodyweight||(!a.weight) };
+        s.exercises.push(ex);
+      }
+      s.logs[ex.id] = s.logs[ex.id] || [];
+      s.logs[ex.id].push({ weight: a.weight||0, reps: a.reps||8, date: new Date().toISOString() });
+      ss('po_coach_v1', s);
+      return { label: '💪 ' + ex.name + (a.weight ? ' '+a.weight+'kg' : '') + ' ×' + (a.reps||8) + ' → Fitness', cls: 't-ex' };
+    }
+
+    /* PESO CORPORAL */
+    if (a.type === 'body_weight') {
+      const entries = sg('po_coach_weights') || [];
+      const idx = entries.findIndex(e => e.dateKey === today);
+      const entry = { dateKey: today, weight: a.value||0, ts: Date.now() };
+      if (idx >= 0) entries[idx] = entry; else entries.unshift(entry);
+      ss('po_coach_weights', entries);
+      return { label: '⚖️ ' + a.value + (a.unit||'kg') + ' → Peso', cls: 't-wt' };
+    }
+
+    /* FINANÇAS — ativo/conta */
+    if (a.type === 'finance_asset') {
+      const catKey = 'nw:' + (a.category||'bank');
+      const items = sg(catKey) || [];
+      const found = items.find(i => i.name.toLowerCase() === (a.name||'').toLowerCase());
+      if (found) found.amount = a.amount;
+      else items.push({ name: a.name||'Conta', amount: a.amount||0 });
+      ss(catKey, items);
+      return { label: '💰 ' + (a.name||'Conta') + ' R$' + a.amount + ' → Finanças', cls: 't-fin' };
+    }
+
+    /* FINANÇAS — gasto/pedido */
+    if (a.type === 'finance_order') {
+      const orders = sg('incoming_orders') || [];
+      orders.push({ id:'ord_'+Date.now(), name: a.name||'Compra', amount: a.amount||0, currency:'BRL', date:'', ts: Date.now() });
+      ss('incoming_orders', orders);
+      return { label: '📦 ' + (a.name||'Compra') + ' R$' + a.amount + ' → Finanças', cls: 't-fin' };
+    }
+
+    /* SUPLEMENTO TOMADO */
+    if (a.type === 'supplement_taken') {
+      const items = sg('stack:items') || [];
+      const nm2 = (a.name||'').toLowerCase();
+      const found = items.find(i => i.name.toLowerCase().includes(nm2) || nm2.includes(i.name.toLowerCase()));
+      if (!found) return { label: '⚠️ "' + a.name + '" não está na sua pilha — adicione em Saúde', cls: 't-err' };
+      const tk = sg('stack:taken:'+today) || {};
+      tk[found.id] = true;
+      ss('stack:taken:'+today, tk);
+      return { label: '💊 ' + found.name + ' tomado → Saúde', cls: 't-sup' };
+    }
+
+    return { label: '⚠️ Ação não reconhecida: ' + a.type, cls: 't-err' };
+  }
+
+  /* ── System prompt ───────────────────────────────────────────── */
+  const SYS = `Você é um assistente de registro automático para um dashboard de vida pessoal em português. Analise qualquer entrada (texto ou imagem) e retorne SOMENTE um JSON válido, sem markdown, sem explicações.
+
+Formato obrigatório:
+{"message":"Confirmação amigável em português do que foi registrado","actions":[...]}
+
+Tipos de ação disponíveis:
+
+{"type":"caffeine","name":"Nome da bebida","mg":95,"emoji":"☕"}
+Referências de mg: café coado=95, café solúvel=62, espresso=64, cappuccino=64, latte=64, americano=128, café duplo=190, starbucks grande=310, red bull 250ml=80, monster=160, bang=300, celsius=200, pré-treino=200, chá preto=47, chá verde=28, matcha=70, coca-cola=34, energético genérico=160
+
+{"type":"exercise","name":"Nome","weight":60,"reps":8,"bodyweight":false}
+Para exercícios sem peso (flexão, barra fixa, agachamento livre): bodyweight=true, weight=0
+
+{"type":"water","units":1}
+1 unidade = 1 garrafa ou 1 copo. "2 copos" = units:2
+
+{"type":"goal","text":"Texto da meta"}
+
+{"type":"body_weight","value":75.5,"unit":"kg"}
+
+{"type":"finance_asset","category":"bank","name":"Nome da conta","amount":1000}
+category: bank (dinheiro/conta), stocks (ações/investimentos), crypto, other
+
+{"type":"finance_order","name":"Descrição do gasto","amount":50}
+Use para qualquer gasto, compra ou despesa
+
+{"type":"supplement_taken","name":"Nome do suplemento"}
+
+REGRAS IMPORTANTES:
+- Retorne APENAS o JSON puro, nada mais
+- Você pode retornar múltiplas ações no mesmo array
+- Entenda português coloquial, gírias e abreviações
+- Para imagens do Apple Watch / saúde: extraia treinos, peso, sono (sono vira goal com texto sobre o sono)
+- Para extratos bancários ou notas fiscais: crie finance_order para cada transação relevante
+- Para screenshots de apps de treino: extraia exercícios como actions de exercise
+- Se não entender nada: {"message":"Não consegui identificar o que registrar. Tente ser mais específico!","actions":[]}`;
+
+  /* ── Send ────────────────────────────────────────────────────── */
+  async function send() {
+    if (busy) return;
+    const txt = ibox.value.trim();
+    if (!txt && !pending) return;
+    const key = getKey();
+    if (!key) { noKey.classList.add('show'); return; }
+
+    busy = true;
+    sendBtn.disabled = true;
+
+    // Build content
+    const content = [];
+    if (pending) {
+      if (pending.isPdf) {
+        content.push({ type:'document', source:{ type:'base64', media_type: pending.mediaType, data: pending.base64 } });
+      } else {
+        content.push({ type:'image', source:{ type:'base64', media_type: pending.mediaType, data: pending.base64 } });
+      }
+    }
+    if (txt) content.push({ type:'text', text: txt });
+
+    addUserMsg(txt, pending);
+    const pf = pending;
+    ibox.value = '';
+    ibox.style.height = '';
+    clearFile();
+    updateSend();
+
+    const typing = addTyping();
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-8',
+          max_tokens: 1500,
+          system: SYS,
+          messages: [{ role:'user', content: (content.length === 1 && !pf) ? content[0].text : content }]
+        })
+      });
+
+      const j = await res.json();
+      typing.remove();
+
+      if (j.error) { addAiMsg('❌ Erro: ' + (j.error.message || 'Algo deu errado.'), []); return; }
+
+      const raw = j.content?.[0]?.text || '{}';
+      let parsed;
+      try { parsed = JSON.parse(raw); }
+      catch(e) {
+        const m = raw.match(/\{[\s\S]*\}/);
+        try { parsed = m ? JSON.parse(m[0]) : { message: raw, actions: [] }; }
+        catch(e2) { parsed = { message: raw, actions: [] }; }
+      }
+
+      const tags = (parsed.actions || []).map(exec);
+      addAiMsg(parsed.message || 'Pronto!', tags);
+
+    } catch(e) {
+      typing.remove();
+      addAiMsg('❌ Erro de conexão. Verifique sua internet e a chave de API.', []);
+    } finally {
+      busy = false;
+      sendBtn.disabled = false;
+      updateSend();
+    }
+  }
+
+  /* ── UI builders ─────────────────────────────────────────────── */
+  function addUserMsg(txt, pf) {
+    const d = document.createElement('div');
+    d.className = 'msg user';
+    let h = '';
+    if (pf && !pf.isPdf) h += '<img src="data:' + pf.mediaType + ';base64,' + pf.base64 + '" alt="" style="margin-bottom:' + (txt?'8px':'0') + '">';
+    if (pf && pf.isPdf)  h += '<div style="padding:7px 10px;background:rgba(255,255,255,0.06);border-radius:7px;font-size:12px;margin-bottom:' + (txt?'6px':'0') + '">📄 ' + esc(pf.name) + '</div>';
+    if (txt) h += esc(txt);
+    d.innerHTML = '<div class="bubble-user">' + h + '</div>';
+    feed.appendChild(d);
+    scrollDown();
+  }
+
+  function addTyping() {
+    const d = document.createElement('div');
+    d.className = 'msg ai';
+    d.innerHTML = '<div class="bubble-ai"><div class="ai-lbl">ENTRADA RÁPIDA</div><div class="typing"><i></i><i></i><i></i></div></div>';
+    feed.appendChild(d);
+    scrollDown();
+    return d;
+  }
+
+  function addAiMsg(msg, tags) {
+    const d = document.createElement('div');
+    d.className = 'msg ai';
+    const tagsHtml = tags.length
+      ? '<div class="tags">' + tags.map(t => '<span class="tag ' + t.cls + '">' + t.label + '</span>').join('') + '</div>'
+      : '';
+    d.innerHTML = '<div class="bubble-ai"><div class="ai-lbl">ENTRADA RÁPIDA</div><div class="ai-txt">' + esc(msg) + '</div>' + tagsHtml + '</div>';
+    feed.appendChild(d);
+    scrollDown();
+  }
+
+  function scrollDown() { setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 60); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  /* ── File handling ───────────────────────────────────────────── */
+  $('attachBtn').addEventListener('click', () => fileIn.click());
+  fileIn.addEventListener('change', () => {
+    const f = fileIn.files[0];
+    if (!f) return;
+    const isPdf = f.type === 'application/pdf';
+    const r = new FileReader();
+    r.onload = e => {
+      const b64 = e.target.result.split(',')[1];
+      pending = { base64: b64, mediaType: f.type, name: f.name, isPdf };
+      const pw = $('prevWrap'), pi = $('prevImg'), pn = $('prevName');
+      pw.classList.add('show');
+      pi.src = isPdf ? '' : e.target.result;
+      pi.style.display = isPdf ? 'none' : '';
+      pn.textContent = (isPdf ? '📄 ' : '🖼️ ') + f.name;
+      updateSend();
+    };
+    r.readAsDataURL(f);
+    fileIn.value = '';
+  });
+
+  $('prevX').addEventListener('click', clearFile);
+  function clearFile() {
+    pending = null;
+    $('prevWrap').classList.remove('show');
+    $('prevImg').src = '';
+    updateSend();
+  }
+
+  /* ── Input events ────────────────────────────────────────────── */
+  ibox.addEventListener('input', () => {
+    ibox.style.height = 'auto';
+    ibox.style.height = Math.min(ibox.scrollHeight, 120) + 'px';
+    updateSend();
+  });
+  ibox.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  function updateSend() {
+    sendBtn.disabled = busy || (!ibox.value.trim() && !pending);
+  }
+
+  /* ── Example pills ───────────────────────────────────────────── */
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      ibox.value = p.dataset.t;
+      ibox.dispatchEvent(new Event('input'));
+      ibox.focus();
+    });
+  });
+
+  sendBtn.addEventListener('click', send);
+})();
+</script>
+</body>
+</html>
